@@ -1,0 +1,63 @@
+.deck {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+}
+
+.card {
+  width: 75px;
+}
+
+/* Based on codepen by https://codepen.io/csilverman/pen/dYyWYQ */
+.button > span {
+  /* font-size: 400%; */
+  position: relative;
+  /* border: 1px solid #aaa; */
+  height: 1em;
+  width: 1em;
+  padding: 0.25em;
+  border-radius: 50%;
+  transition: all 0.25s ease;
+}
+.button > span:before {
+  content: "";
+  position: absolute;
+  top: 0.25em;
+  left: 0.5em;
+  transition: all 0.25s ease;
+  border: 0.5em solid transparent;
+  border-right-width: 0;
+  height: 0;
+  width: 0;
+}
+.button > span:hover {
+  border-color: #0a0;
+}
+
+.play > span:before {
+  border-left: 0.75em solid #aaa;
+}
+.play > span:hover:before {
+  border-left-color: #0a0;
+}
+
+.paused > span {
+  border-radius: 5%;
+  /* border-color: #f00; */
+}
+.paused > span:before {
+  border-width: 0;
+  border-left: 0.4em solid #f00;
+  border-right: 0.4em solid #f00;
+  height: 1em;
+  width: 0.2em;
+  left: 0.25em;
+}
+.paused > span:hover {
+  border-color: #aaa;
+}
+.paused > span:hover:before {
+  border-left-color: #aaa;
+  border-right-color: #aaa;
+}

@@ -1,3 +1,8 @@
+.deck {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
 body {
   background: #f5f5f5;
   font-family: helvetica;
