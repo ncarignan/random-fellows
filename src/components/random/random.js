@@ -9,7 +9,6 @@ import Roster from "../roster/roster.js";
 const TRIES = 120;
 
 const CURRENT_STUDENTS = [
-  "Angel",
   "Rick",
   "Sarkis",
   "Skyler",
