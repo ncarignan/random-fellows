@@ -2,15 +2,15 @@ import "./random.css";
 
 import React from "react";
 
+import Roster from "../roster/roster.js";
+
 // When generating pairs, the program attempts to create all unique pairs that have not been created before
 // this is the amount of tries before the program automatically allows students to pair up with each other again. Make this bigger to be more accurate, it is already very small to keep things quick
 const TRIES = 120;
 
 const CURRENT_STUDENTS = [
-  "Angel",
   "Rick",
   "Sarkis",
-  "Peter B",
   "Skyler",
   "Nikki",
   "Andrew",
@@ -29,7 +29,9 @@ const CURRENT_STUDENTS = [
   "Lorin",
   "Erin",
   "Anthony",
-  "Mae"
+  "Mae",
+  "Jeff",
+  "Peter B"
 ];
 
 class Counter extends React.Component {
@@ -59,7 +61,11 @@ class Counter extends React.Component {
             projects: [],
             collaborations: {},
             picked: 0,
-            weight: 1
+            weight: 1,
+            unavailabe: true,
+            availableToPair: true,
+            availableToWhiteBoard: true,
+            present: true
           })
         );
       });
@@ -177,14 +183,16 @@ class Counter extends React.Component {
 
     let index;
 
-    let maxPicked = this.state.students.reduce(
-      (a, c) => {
-        a[0] !== Math.floor(c.picked / c.weight) ? (a[1] = true) : null;
+    let maxPicked = this.state.students
+      .filter(student => student.unavailable)
+      .reduce(
+        (a, c) => {
+          a[0] !== Math.floor(c.picked / c.weight) ? (a[1] = true) : null;
 
-        return c.picked / c.weight > a[0] ? [c.picked / c.weight, a[1]] : a;
-      },
-      [this.state.students[0].picked, false]
-    );
+          return c.picked / c.weight > a[0] ? [c.picked / c.weight, a[1]] : a;
+        },
+        [this.state.students[0].picked, false]
+      );
 
     if (!maxPicked[1]) maxPicked[0]++; //if maxPicked[1] ever flagged a different amount of clicks
 
@@ -197,9 +205,17 @@ class Counter extends React.Component {
     this.setState({ student: student.name, pairs });
   };
 
+  handleChangeState = state => {
+    return state ? this.setState(state) : null;
+  };
+
   render() {
     return (
-      <section className="counter">
+      <section className="counter deck">
+        <Roster
+          students={this.state.students}
+          handleChangeState={this.handleChangeState}
+        />
         <span className="clicker" onClick={this.handleCreatePairs}>
           Pairs
         </span>
