@@ -169,7 +169,7 @@ class Counter extends React.Component {
     });
     if (tries > TRIES) {
       //TODO: adjust maxPairs up
-      this.state.maxPairs++;
+      this.setState({maxPairs : this.state.maxPairs + 1});
       return this._handleCreatePairs(0);
     } else if (!allNewPairs) {
       return this._handleCreatePairs(tries + 1);
@@ -188,7 +188,7 @@ class Counter extends React.Component {
       .filter(student => student.unavailable)
       .reduce(
         (a, c) => {
-          a[0] !== Math.floor(c.picked / c.weight) ? (a[1] = true) : null;
+          a[0] !== Math.floor(c.picked / c.weight) ? a[1] = true : null;
 
           return c.picked / c.weight > a[0] ? [c.picked / c.weight, a[1]] : a;
         },
@@ -201,9 +201,14 @@ class Counter extends React.Component {
       index = Math.floor(Math.random() * this.state.students.length);
       student = this.state.students[index];
     } while (student.picked / student.weight >= maxPicked[0]);
-
-    this.state.students[index].picked++;
-    this.setState({ student: student.name, pairs });
+    
+    let tempStudents = this.state.students;
+    tempStudents[index].picked++;
+    this.setState({
+      students: tempStudents, 
+      student: student.name, 
+      pairs
+    })
   };
 
   handleChangeState = state => {

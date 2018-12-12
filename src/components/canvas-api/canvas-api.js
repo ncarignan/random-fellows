@@ -19,6 +19,7 @@ class Roster extends React.Component {
   };
 
   getStudents(){
+    console.log('getStudents')
     return superagent.get(`https://canvas.instructure.com/api/v1/courses`)
       .set('Authorization', `Bearer ${process.env.CANVAS_API_URL}`)
       .then(res => {
@@ -26,7 +27,6 @@ class Roster extends React.Component {
       })
       .catch(console.error);
   }
-
   render() {
     return (
       <section className="roster">
@@ -47,5 +47,6 @@ class Roster extends React.Component {
     );
   }
 }
+
 
 export default Roster;
