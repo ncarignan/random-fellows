@@ -3,6 +3,7 @@ import "./random.css";
 import React from "react";
 
 import Roster from "../roster/roster.js";
+import Canvas from "../canvas-api/canvas-api.js";
 
 // When generating pairs, the program attempts to create all unique pairs that have not been created before
 // this is the amount of tries before the program automatically allows students to pair up with each other again. Make this bigger to be more accurate, it is already very small to keep things quick
@@ -214,6 +215,10 @@ class Counter extends React.Component {
     return (
       <section className="counter deck">
         <Roster
+          students={this.state.students}
+          handleChangeState={this.handleChangeState}
+        />
+        <Canvas
           students={this.state.students}
           handleChangeState={this.handleChangeState}
         />
