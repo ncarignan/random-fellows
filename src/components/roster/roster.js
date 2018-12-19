@@ -19,7 +19,7 @@ class Roster extends React.Component {
   render() {
     return (
       <section className="roster">
-        {this.props.students &&
+        {this.props.students.length &&
           this.props.students.map((student, i) => (
             <div
               className={

@@ -2,82 +2,58 @@ import "./random.css";
 
 import React from "react";
 
-import Roster from "../roster/roster.js";
+// import Roster from "../roster/roster.js";
 import Canvas from "../canvas-api/canvas-api.js";
+import Student from "../../lib/models/student";
 
 // When generating pairs, the program attempts to create all unique pairs that have not been created before
 // this is the amount of tries before the program automatically allows students to pair up with each other again. Make this bigger to be more accurate, it is already very small to keep things quick
 const TRIES = 120;
 
-const CURRENT_STUDENTS = [
-  "Rick",
-  "Sarkis",
-  "Skyler",
-  "Nikki",
-  "Andrew",
-  "Jessica",
-  "Evy",
-  "Erik",
-  "Jerome",
-  "Nicole",
-  "Jared",
-  "Michael",
-  "Peter M",
-  "H'Liana",
-  "Karl",
-  "Connor",
-  "Xochil",
-  "Lorin",
-  "Erin",
-  "Anthony",
-  "Mae",
-  "Jeff",
-  "Peter B"
-];
+// const CURRENT_STUDENTS = [
+//   "Rick",
+//   "Sarkis",
+//   "Skyler",
+//   "Nikki",
+//   "Andrew",
+//   "Jessica",
+//   "Evy",
+//   "Erik",
+//   "Jerome",
+//   "Nicole",
+//   "Jared",
+//   "Michael",
+//   "Peter M",
+//   "H'Liana",
+//   "Karl",
+//   "Connor",
+//   "Xochil",
+//   "Lorin",
+//   "Erin",
+//   "Anthony",
+//   "Mae",
+//   "Jeff",
+//   "Peter B"
+// ];
 
-class Counter extends React.Component {
+class Random extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      students: this.getStudents(),
+      students: [],
+      // students: JSON.parse(localStorage.getItem('students')),
       maxPairs: 1
     };
   }
-
-  Student(student) {
-    Object.assign(this, student);
-  }
-
-  getStudents() {
-    let allStudents = [];
-    if (localStorage.getItem("students")) {
-      JSON.parse(localStorage.getItem("students")).forEach(student =>
-        allStudents.push(new this.Student(student))
-      );
-    } else {
-      CURRENT_STUDENTS.forEach(studentName => {
-        allStudents.push(
-          new this.Student({
-            name: studentName,
-            projects: [],
-            collaborations: {},
-            picked: 0,
-            weight: 1,
-            unavailabe: true,
-            availableToPair: true,
-            availableToWhiteBoard: true,
-            present: true
-          })
-        );
-      });
-    }
-    return allStudents;
+  componentDidMount () {
+    Student.get(this.handleChangeState, 'LS');
   }
 
   handleCreatePairs = () => {
     let result = this._handleCreatePairs(); // returns an array of [pairs, classroom]
     if (result) {
-      this.setState({ pairs: result[0], students: result[1], student: null });
+      this.handleChangeState({ pairs: result[0], students: result[1], student: null });
+      console.log('new pairs')
       localStorage.setItem("students", JSON.stringify(result[1]));
     } else {
       console.log("there are no more unique combinations"); //TODO: Alert the user
@@ -87,21 +63,21 @@ class Counter extends React.Component {
   _handleCreatePairs = (tries = 0, projectName) => {
     let resultPairs = [];
     let resultStudents = [];
-    let tempStudents = JSON.parse(JSON.stringify(this.state.students));
+    let tempStudents = JSON.parse(JSON.stringify(this.state.students)).filter(student => (student.availableToPair && !student.unavailable) ? true : resultStudents.push(student) && false); //TODO: refactor to a spread operator
     projectName = projectName
       ? projectName
       : `${new Date().getUTCMonth()}-${new Date().getDay()}-18 [${tries}]`;
 
     while (tempStudents.length) {
       if (!(tempStudents.length - 1)) {
-        let a = tempStudents.splice(0, 1)[0];
+        let a = tempStudents.pop(); //A
         let b = resultPairs[resultPairs.length - 1][0];
         let c = resultPairs[resultPairs.length - 1][1];
         resultPairs[resultPairs.length - 1].push(a);
 
         a.projects.push({
           projectName: projectName,
-          partners: [b.name, c.name]
+          partners: [b.name, c.name] //TODO: refactor to include all names
         });
         b.projects[b.projects.length - 1] = {
           projectName: projectName,
@@ -122,15 +98,9 @@ class Counter extends React.Component {
         b.collaborations[a.name] = b.collaborations[a.name]
           ? b.collaborations[a.name] + 1
           : 1;
-        b.collaborations[c.name] = b.collaborations[c.name]
-          ? b.collaborations[c.name] + 1
-          : 1;
 
         c.collaborations[a.name] = c.collaborations[a.name]
           ? c.collaborations[a.name] + 1
-          : 1;
-        c.collaborations[b.name] = c.collaborations[b.name]
-          ? c.collaborations[b.name] + 1
           : 1;
 
         resultStudents.push(a);
@@ -169,7 +139,7 @@ class Counter extends React.Component {
     });
     if (tries > TRIES) {
       //TODO: adjust maxPairs up
-      this.setState({maxPairs : this.state.maxPairs + 1});
+      this.handleChangeState({maxPairs : this.state.maxPairs + 1});
       return this._handleCreatePairs(0);
     } else if (!allNewPairs) {
       return this._handleCreatePairs(tries + 1);
@@ -188,7 +158,7 @@ class Counter extends React.Component {
       .filter(student => student.unavailable)
       .reduce(
         (a, c) => {
-          a[0] !== Math.floor(c.picked / c.weight) ? a[1] = true : null;
+          if (a[0] !== Math.floor(c.picked / c.weight)) a[1] = true;
 
           return c.picked / c.weight > a[0] ? [c.picked / c.weight, a[1]] : a;
         },
@@ -204,7 +174,7 @@ class Counter extends React.Component {
     
     let tempStudents = this.state.students;
     tempStudents[index].picked++;
-    this.setState({
+    this.handleChangeState({
       students: tempStudents, 
       student: student.name, 
       pairs
@@ -212,16 +182,18 @@ class Counter extends React.Component {
   };
 
   handleChangeState = state => {
+    //TODO: keep the students sorted on screen
+    // if(state.students && state.students.length) {
+    //   console.log(state.students);
+
+    //   state.students = state.students.sort((a, b) => a.name > b.name);
+    // }
     return state ? this.setState(state) : null;
   };
 
   render() {
     return (
       <section className="counter deck">
-        <Roster
-          students={this.state.students}
-          handleChangeState={this.handleChangeState}
-        />
         <Canvas
           students={this.state.students}
           handleChangeState={this.handleChangeState}
@@ -236,7 +208,7 @@ class Counter extends React.Component {
         <ul className="pairs">
           {this.state.pairs &&
             this.state.pairs.map((pair, i) => (
-              <li key={i}>{pair.reduce((a, c) => `${a} ${c.name},`, "")}</li>
+              <li key={i}>{pair.reduce((a, c) => `${a} ${c.name},`, "").slice(0, -1)}</li>
             ))}
         </ul>
       </section>
@@ -244,4 +216,4 @@ class Counter extends React.Component {
   }
 }
 
-export default Counter;
+export default Random;

@@ -2,7 +2,9 @@ import "./canvas-api.css";
 
 import React from "react";
 
-const superagent = require('superagent');
+import Student from "../../lib/models/student.js";
+
+const API_URL = 'http://localhost:3001'
 
 class Roster extends React.Component {
   constructor(props) {
@@ -18,20 +20,18 @@ class Roster extends React.Component {
     this.props.handleChangeState(tempStudents);
   };
 
-  getStudents(){
-    console.log('getStudents')
-    return superagent.get(`https://canvas.instructure.com/api/v1/courses`)
-      .set('Authorization', `Bearer ${process.env.CANVAS_API_URL}`)
-      .then(res => {
-        console.log(res.body);
-      })
-      .catch(console.error);
-  }
+  // getStudentsHandler = result => {
+  //   let students = result.body.map(student => new Student(student));
+  //   console.log(result);
+  //   this.props.handleChangeState(students);
+  // }
+  
   render() {
     return (
       <section className="roster">
-        <button onClick={this.getStudents}>getStudents</button>
-        {/* {this.props.students &&
+        <button onClick={() => {Student.get(`${API_URL}/course/all`, this.props.handleChangeState)}}>getStudents</button>
+        {/* <button onClick={this.getStudents}>updateStudents</button> */}
+        {this.props.students.length &&
           this.props.students.map((student, i) => (
             <div
               className={
@@ -42,7 +42,7 @@ class Roster extends React.Component {
               <div className="card">{student.name}</div>
               <span className="card" id={i} onClick={this.toggleAvailability} />
             </div>
-          ))} */}
+          ))}
       </section>
     );
   }
