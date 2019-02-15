@@ -1,9 +1,3 @@
-.deck {
-  display: flex;
-  flex-direction: row;
-  justify-content: start;
-  align-items: center;
-}
 
 .card {
   width: 75px;
