@@ -1,6 +1,7 @@
 import "./random.css";
 
 import React from "react";
+import renderIf from 'render-if';
 
 // import Roster from "../roster/roster.js";
 import Canvas from "../canvas-api/canvas-api.js";
@@ -10,43 +11,20 @@ import Student from "../../lib/models/student";
 // this is the amount of tries before the program automatically allows students to pair up with each other again. Make this bigger to be more accurate, it is already very small to keep things quick
 const TRIES = 120;
 
-// const CURRENT_STUDENTS = [
-//   "Rick",
-//   "Sarkis",
-//   "Skyler",
-//   "Nikki",
-//   "Andrew",
-//   "Jessica",
-//   "Evy",
-//   "Erik",
-//   "Jerome",
-//   "Nicole",
-//   "Jared",
-//   "Michael",
-//   "Peter M",
-//   "H'Liana",
-//   "Karl",
-//   "Connor",
-//   "Xochil",
-//   "Lorin",
-//   "Erin",
-//   "Anthony",
-//   "Mae",
-//   "Jeff",
-//   "Peter B"
-// ];
-
 class Random extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      courses: [],
+      currentCourseId: null,
+      last_course: null,
       students: [],
-      // students: JSON.parse(localStorage.getItem('students')),
       maxPairs: 1
     };
   }
   componentDidMount () {
     Student.get(this.handleChangeState, 'LS');
+    this.handleChangeState({currentCourseId: localStorage.getItem('currentCourseId')})
   }
 
   handleCreatePairs = () => {
@@ -194,23 +172,35 @@ class Random extends React.Component {
   render() {
     return (
       <section className="counter deck">
-        <Canvas
-          students={this.state.students}
-          handleChangeState={this.handleChangeState}
+        <Canvas students={this.state.students} handleChangeState={this.handleChangeState} 
+          courses={this.state.courses} currentCourseId={this.state.currentCourseId}
         />
-        <span className="clicker" onClick={this.handleCreatePairs}>
-          Pairs
-        </span>
-        <span className="clicker" onClick={this.selectStudent}>
-          Next!
-        </span>
-        <span className="student">{this.state.student}</span>
-        <ul className="pairs">
-          {this.state.pairs &&
-            this.state.pairs.map((pair, i) => (
-              <li key={i}>{pair.reduce((a, c) => `${a} ${c.name},`, "").slice(0, -1)}</li>
-            ))}
-        </ul>
+        <div>
+          <div className="pairs-and-students-buttons">
+            <span className="clicker" onClick={this.handleCreatePairs}>Pairs</span>
+            <span className="clicker" onClick={this.selectStudent}>Next!</span>
+          </div>
+          <div>
+            <span className="student">{this.state.student}</span>
+            <ul className="pairs">
+              {this.state.pairs &&
+                this.state.pairs.map((pair, i) => (
+                  <li key={i}>{pair.reduce((a, c) => `${a} ${c.name},`, "").slice(0, -1)}</li>
+                ))}
+            </ul>
+            <div className="courses">
+              {this.state.courses && !this.state.currentCourseId &&
+                this.state.courses.map((course, i) => (
+                  <div key={i} onClick={() => {
+                    this.setState({currentCourseId : course.id})
+                    console.log(course)
+                  }
+                }>{course.name.split(':')[0]}</div>
+                ))}
+            </div>
+          </div>
+        </div>
+        
       </section>
     );
   }

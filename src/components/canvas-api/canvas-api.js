@@ -3,6 +3,7 @@ import "./canvas-api.css";
 import React from "react";
 
 import Student from "../../lib/models/student.js";
+import Course from "../../lib/models/course.js";
 
 const API_URL = 'http://localhost:3001'
 
@@ -28,21 +29,24 @@ class Roster extends React.Component {
   
   render() {
     return (
-      <section className="roster">
-        <button onClick={() => {Student.get(`${API_URL}/course/all`, this.props.handleChangeState)}}>getStudents</button>
-        {/* <button onClick={this.getStudents}>updateStudents</button> */}
-        {this.props.students.length &&
-          this.props.students.map((student, i) => (
-            <div
-              className={
-                student.unavailable ? "button paused deck" : "button play deck"
-              }
-              key={i}
-            >
-              <div className="card">{student.name}</div>
-              <span className="card" id={i} onClick={this.toggleAvailability} />
-            </div>
-          ))}
+      <section>
+        <span className="small-clicker" onClick={() => {Course.get(`${API_URL}/course/all`, this.props.handleChangeState) }}>getCourses</span>
+        <span className="small-clicker" onClick={() => {Student.get(`${API_URL}/students/${this.props.currentCourseId}`, this.props.handleChangeState)}}>getStudents</span>
+        <div className="roster">
+          {this.props.students.length &&
+            this.props.students.map((student, i) => (
+              <div
+                className={
+                  student.unavailable ? "button paused deck" : "button play deck"
+                }
+                key={i}
+              >
+                <div className="card">{student.name}</div>
+                <span className="card" id={i} onClick={this.toggleAvailability} />
+              </div>
+            ))}
+        </div>
+        
       </section>
     );
   }
